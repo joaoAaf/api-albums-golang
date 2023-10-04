@@ -3,14 +3,13 @@ package mongodb
 import (
 	"context"
 	"os"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var ctx, cancel = context.WithTimeout(context.Background(), 20*time.Second)
+var ctx = context.Background()
 
 func ConnectionDB() *mongo.Collection {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("STRING_CONNECTION")))
