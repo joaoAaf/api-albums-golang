@@ -17,7 +17,7 @@ type Album struct {
 }
 
 func getAlbums(c *gin.Context) {
-	c.JSON(http.StatusOK, mongodb.FindAll())
+	c.IndentedJSON(http.StatusOK, mongodb.FindAll())
 }
 
 func postAlbums(c *gin.Context) {
@@ -25,7 +25,7 @@ func postAlbums(c *gin.Context) {
 	if err := c.BindJSON(&newAlbum); err != nil {
 		return
 	}
-	c.JSON(http.StatusCreated, mongodb.InsertData(newAlbum).InsertedID)
+	c.IndentedJSON(http.StatusCreated, mongodb.InsertData(newAlbum).InsertedID)
 }
 
 /*
