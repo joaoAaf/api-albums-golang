@@ -9,7 +9,10 @@ Vagrant.configure("2") do |config|
       curl -fsSL https://get.docker.com -o get-docker.sh
       sh get-docker.sh
       rm get-docker.sh
-      apt-get install nano -y
+      groupadd docker
+      usermod -aG docker vagrant
+      cd /vagrant_data
+      docker compose up -d
     SHELL
   end
 
