@@ -2,9 +2,10 @@ package mongodb
 
 import (
 	"context"
-	"os"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -12,7 +13,7 @@ import (
 var ctx = context.Background()
 
 func ConnectionDB() *mongo.Collection {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("STRING_CONNECTION")))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI( /*os.Getenv("STRING_CONNECTION")*/ "mongodb://localhost:27017"))
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +24,7 @@ func ConnectionDB() *mongo.Collection {
 	return collection
 }
 
-func InsertData(obj interface{}) *mongo.InsertOneResult {
+func InsertData(obj any) *mongo.InsertOneResult {
 	collection := ConnectionDB()
 	result, err := collection.InsertOne(ctx, obj)
 	if err != nil {
@@ -47,6 +48,14 @@ func FindAll() []bson.M {
 	return results
 }
 
-func FindOne() {
-
+func FindOne(id primitive.ObjectID) bson.M {
+	collection := ConnectionDB()
+	var result bson.M
+	filter := bson.D{{Key: "_id", Value: id}}
+	errFindOne := collection.FindOne(ctx, filter).Decode(&result)
+	if errFindOne != nil {
+		log.Println("Error", errFindOne)
+		return nil
+	}
+	return result
 }
