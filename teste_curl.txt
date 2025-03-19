@@ -1,7 +1,11 @@
-curl -X GET '{endereço-api}:8080/albums'
-
 curl -X POST '{endereço-api}:8080/albums' --data '{"title": "Um album qualquer","artist": "Fulano de Tal","price": 2.99}'
 
-curl -X PUT '{endereço-api}:8080/albums/{id}' --data '{"title": "Um album qualquer","artist": "Fulano de Tal","price": 2.99}'
+curl -X POST '{endereço-api}:8080/albums' --data '{"title": "Esse é bom","artist": "Beltrano da Silva","price": 1.89}'
+
+curl -X GET '{endereço-api}:8080/albums'
+
+curl -X GET '{endereço-api}:8080/albums/{id}'
+
+curl -X PUT '{endereço-api}:8080/albums/{id}' --data '{"title": "Um album qualquer","artist": "Fulano de Castro","price": 10.55}'
 
 curl -X DELETE '{endereço-api}:8080/albums/{id}'

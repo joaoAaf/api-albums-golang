@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"api/config"
+	album "api/model"
 	"context"
 	"log"
 
@@ -25,9 +26,9 @@ func connectionDB() *mongo.Collection {
 	return collection
 }
 
-func InsertData(obj any) *mongo.InsertOneResult {
+func InsertData(newAlbum album.Album) *mongo.InsertOneResult {
 	collection := connectionDB()
-	result, err := collection.InsertOne(ctx, obj)
+	result, err := collection.InsertOne(ctx, newAlbum)
 	if err != nil {
 		panic(err)
 	}
@@ -56,6 +57,18 @@ func FindOne(id primitive.ObjectID) bson.M {
 	errFindOne := collection.FindOne(ctx, filter).Decode(&result)
 	if errFindOne != nil {
 		log.Println("Error", errFindOne)
+	}
+	return result
+}
+
+func UpdateData(id primitive.ObjectID, newAlbum album.Album) bson.M {
+	collection := connectionDB()
+	filter := bson.D{{Key: "_id", Value: id}}
+	update := bson.D{{Key: "$set", Value: newAlbum}}
+	var result bson.M
+	errUpdate := collection.FindOneAndUpdate(ctx, filter, update).Decode(&result)
+	if errUpdate != nil {
+		log.Println("Error", errUpdate)
 	}
 	return result
 }

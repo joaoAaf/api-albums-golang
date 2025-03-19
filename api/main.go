@@ -2,19 +2,13 @@ package main
 
 import (
 	mongodb "api/database"
+	album "api/model"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-type Album struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	Title  string             `bson:"title"`
-	Artist string             `bson:"artist"`
-	Price  float64            `bson:"price"`
-}
 
 func getAlbums(c *gin.Context) {
 	if len(mongodb.FindAll()) == 0 {
@@ -25,7 +19,7 @@ func getAlbums(c *gin.Context) {
 }
 
 func postAlbums(c *gin.Context) {
-	var newAlbum Album
+	var newAlbum album.Album
 	if err := c.BindJSON(&newAlbum); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
 		return
@@ -47,6 +41,25 @@ func getAlbumByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, mongodb.FindOne(objId))
 }
 
+func updateAlbum(c *gin.Context) {
+	id := c.Param("id")
+	objId, errObjId := primitive.ObjectIDFromHex(id)
+	if errObjId != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+	var newAlbum album.Album
+	if err := c.BindJSON(&newAlbum); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
+		return
+	}
+	if mongodb.UpdateData(objId, newAlbum) == nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusNoContent, mongodb.UpdateData(objId, newAlbum))
+}
+
 func main() {
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -57,5 +70,6 @@ func main() {
 	router.GET("/albums/:id", getAlbumByID)
 	router.GET("/albums", getAlbums)
 	router.POST("/albums", postAlbums)
+	router.PUT("/albums/:id", updateAlbum)
 	router.Run(":8080")
 }
