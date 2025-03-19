@@ -4,7 +4,6 @@ import (
 	"api/config"
 	album "api/model"
 	"context"
-	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -56,19 +55,31 @@ func FindOne(id primitive.ObjectID) bson.M {
 	filter := bson.D{{Key: "_id", Value: id}}
 	errFindOne := collection.FindOne(ctx, filter).Decode(&result)
 	if errFindOne != nil {
-		log.Println("Error", errFindOne)
+		if errFindOne == mongo.ErrNoDocuments {
+			return bson.M{}
+		}
+		panic(errFindOne)
 	}
 	return result
 }
 
-func UpdateData(id primitive.ObjectID, newAlbum album.Album) bson.M {
+func UpdateOne(id primitive.ObjectID, newAlbum album.Album) int {
 	collection := connectionDB()
 	filter := bson.D{{Key: "_id", Value: id}}
 	update := bson.D{{Key: "$set", Value: newAlbum}}
-	var result bson.M
-	errUpdate := collection.FindOneAndUpdate(ctx, filter, update).Decode(&result)
+	result, errUpdate := collection.UpdateOne(ctx, filter, update)
 	if errUpdate != nil {
-		log.Println("Error", errUpdate)
+		panic(errUpdate)
 	}
-	return result
+	return int(result.ModifiedCount)
+}
+
+func DeleteOne(id primitive.ObjectID) int {
+	collection := connectionDB()
+	filter := bson.D{{Key: "_id", Value: id}}
+	result, errDelete := collection.DeleteOne(ctx, filter)
+	if errDelete != nil {
+		panic(errDelete)
+	}
+	return int(result.DeletedCount)
 }

@@ -12,7 +12,7 @@ import (
 
 func getAlbums(c *gin.Context) {
 	if len(mongodb.FindAll()) == 0 {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "no albums found"})
+		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no albums found"})
 		return
 	}
 	c.IndentedJSON(http.StatusOK, mongodb.FindAll())
@@ -21,7 +21,7 @@ func getAlbums(c *gin.Context) {
 func postAlbums(c *gin.Context) {
 	var newAlbum album.Album
 	if err := c.BindJSON(&newAlbum); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 	c.IndentedJSON(http.StatusCreated, mongodb.InsertData(newAlbum).InsertedID)
@@ -31,11 +31,11 @@ func getAlbumByID(c *gin.Context) {
 	id := c.Param("id")
 	objId, errObjId := primitive.ObjectIDFromHex(id)
 	if errObjId != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 		return
 	}
-	if mongodb.FindOne(objId) == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+	if len(mongodb.FindOne(objId)) == 0 {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "album not found"})
 		return
 	}
 	c.IndentedJSON(http.StatusOK, mongodb.FindOne(objId))
@@ -45,19 +45,33 @@ func updateAlbum(c *gin.Context) {
 	id := c.Param("id")
 	objId, errObjId := primitive.ObjectIDFromHex(id)
 	if errObjId != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
 		return
 	}
 	var newAlbum album.Album
 	if err := c.BindJSON(&newAlbum); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
-	if mongodb.UpdateData(objId, newAlbum) == nil {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+	if mongodb.UpdateOne(objId, newAlbum) <= 0 {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "album not found"})
 		return
 	}
-	c.IndentedJSON(http.StatusNoContent, mongodb.UpdateData(objId, newAlbum))
+	c.IndentedJSON(http.StatusNoContent, mongodb.UpdateOne(objId, newAlbum))
+}
+
+func deleteAlbum(c *gin.Context) {
+	id := c.Param("id")
+	objId, errObjId := primitive.ObjectIDFromHex(id)
+	if errObjId != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "invalid ID"})
+		return
+	}
+	if mongodb.DeleteOne(objId) <= 0 {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "album not found"})
+		return
+	}
+	c.IndentedJSON(http.StatusNoContent, mongodb.DeleteOne(objId))
 }
 
 func main() {
@@ -71,5 +85,6 @@ func main() {
 	router.GET("/albums", getAlbums)
 	router.POST("/albums", postAlbums)
 	router.PUT("/albums/:id", updateAlbum)
+	router.DELETE("/albums/:id", deleteAlbum)
 	router.Run(":8080")
 }
