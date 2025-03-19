@@ -1,6 +1,7 @@
 package mongodb
 
 import (
+	"api/config"
 	"context"
 	"log"
 
@@ -12,8 +13,8 @@ import (
 
 var ctx = context.Background()
 
-func ConnectionDB() *mongo.Collection {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI( /*os.Getenv("STRING_CONNECTION")*/ "mongodb://localhost:27017"))
+func connectionDB() *mongo.Collection {
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.StringConnectionMongo()))
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +26,7 @@ func ConnectionDB() *mongo.Collection {
 }
 
 func InsertData(obj any) *mongo.InsertOneResult {
-	collection := ConnectionDB()
+	collection := connectionDB()
 	result, err := collection.InsertOne(ctx, obj)
 	if err != nil {
 		panic(err)
@@ -36,7 +37,7 @@ func InsertData(obj any) *mongo.InsertOneResult {
 func FindAll() []bson.M {
 	var results []bson.M
 
-	collection := ConnectionDB()
+	collection := connectionDB()
 
 	cur, err := collection.Find(ctx, bson.D{})
 	if err != nil {
@@ -49,13 +50,12 @@ func FindAll() []bson.M {
 }
 
 func FindOne(id primitive.ObjectID) bson.M {
-	collection := ConnectionDB()
+	collection := connectionDB()
 	var result bson.M
 	filter := bson.D{{Key: "_id", Value: id}}
 	errFindOne := collection.FindOne(ctx, filter).Decode(&result)
 	if errFindOne != nil {
 		log.Println("Error", errFindOne)
-		return nil
 	}
 	return result
 }
