@@ -9,6 +9,14 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+func GetInitial(c *gin.Context) {
+	greeting := gin.H{
+		"message":      "Welcome to the API Managerment Albums",
+		"instructions": "https://github.com/joaoAaf/api-doc-go-mongo/blob/main/README.md",
+	}
+	c.IndentedJSON(http.StatusOK, greeting)
+}
+
 func GetAlbums(c *gin.Context) {
 	if len(mongodb.FindAll()) == 0 {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"error": "no albums found"})

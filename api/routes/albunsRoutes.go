@@ -14,6 +14,7 @@ func RouterAlbuns() {
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders: []string{"Content-Type", "access-control-allow-origin", "access-control-allow-headers"},
 	}))
+	router.GET("/", controller.GetInitial)
 	router.GET("/albums/:id", controller.GetAlbumByID)
 	router.GET("/albums", controller.GetAlbums)
 	router.POST("/albums", controller.PostAlbums)

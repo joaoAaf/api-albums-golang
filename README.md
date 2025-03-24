@@ -50,6 +50,8 @@ Para usar a API de Gerenciamento de Albums, você precisará seguir os passos ab
 *   Certifique-se de que o **Docker** e **Docker Compose** estão instalados em sua máquina antes de executar o comando para construir e subir os containers.
 *   A porta padrão utilizada pela API é a **8080**, mas você pode alterá-la no arquivo `docker-compose.yml`.
 *   Você pode personalizar as variáveis de ambiente da aplicação criando um arquivo `.env` e substituindo os valores das variáveis no `docker-compose.yml` por `${VARIAVEL}`.
+*   A única variavel de ambiente necessária para executar a aplicação é a `MONGO_CONNECTION`, que deve conter a string de conexão com o banco de dados, seu valor padrão é `mongodb://localhost:27017`.
+
 
 ### Licença
 
