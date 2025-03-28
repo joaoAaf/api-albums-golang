@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func RouterAlbuns() {
@@ -20,5 +21,6 @@ func RouterAlbuns() {
 	router.POST("/albums", controller.PostAlbums)
 	router.PUT("/albums/:id", controller.UpdateAlbum)
 	router.DELETE("/albums/:id", controller.DeleteAlbum)
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.Run(":8080")
 }
