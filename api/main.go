@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	routes.RouterAlbuns()
+	routes.RouterAlbums()
 }

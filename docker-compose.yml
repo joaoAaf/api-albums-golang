@@ -26,3 +26,13 @@ services:
       - db
     environment:
       MONGO_CONNECTION: mongodb://admin:changeme@db:27017
+
+  prometheus:
+    container_name: albums-prometheus
+    image: prom/prometheus
+    restart: unless-stopped
+    # ports:
+    #   - 9090:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    network_mode: host
