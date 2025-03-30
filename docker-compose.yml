@@ -36,3 +36,15 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     network_mode: host
+
+  grafana:
+    container_name: albums-grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    # ports:
+    #   - 3000:3000
+    volumes:
+      - ./monitoring/grafana/provisioning/:/etc/grafana/provisioning/
+    network_mode: host
+    depends_on:
+      - prometheus
