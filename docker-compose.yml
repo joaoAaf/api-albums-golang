@@ -26,3 +26,27 @@ services:
       - db
     environment:
       MONGO_CONNECTION: mongodb://admin:changeme@db:27017
+
+  prometheus:
+    container_name: albums-prometheus
+    image: prom/prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - albums-net
+    depends_on:
+      - api
+
+  grafana:
+    container_name: albums-grafana
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./monitoring/grafana/provisioning/:/etc/grafana/provisioning/
+    networks:
+      - albums-net
+    depends_on:
+      - prometheus

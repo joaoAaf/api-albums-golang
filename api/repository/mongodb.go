@@ -1,7 +1,7 @@
 package mongodb
 
 import (
-	"api/config"
+	"api/configs/environments"
 	album "api/model"
 	"context"
 
@@ -14,7 +14,7 @@ import (
 var ctx = context.Background()
 
 func connectionDB() *mongo.Collection {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.StringConnectionMongo()))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(environments.StringConnectionMongo()))
 	if err != nil {
 		panic(err)
 	}
