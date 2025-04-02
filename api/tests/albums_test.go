@@ -28,6 +28,21 @@ func TestGetInitial(t *testing.T) {
 	assert.Equal(t, "Welcome to the API Managerment Albums", response["message"])
 }
 
+func TestGetAlbumsEmpty(t *testing.T) {
+	router := gin.Default()
+	router.GET("/albums", controllers.GetAlbums)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/albums", nil)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 404, w.Code)
+	var response map[string]any
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.Nil(t, err)
+	assert.Equal(t, "no albums found", response["error"])
+}
+
 func TestPostAlbums(t *testing.T) {
 	router := gin.Default()
 	router.POST("/albums", controllers.PostAlbums)
@@ -60,4 +75,89 @@ func TestGetAlbums(t *testing.T) {
 	assert.Nil(t, err)
 	expectedResponse := `{"title": "Um álbum qualquer", "artist": "Fulano de Tal", "price": 2.99}`
 	assert.JSONEq(t, expectedResponse, string(updateResponse))
+}
+
+func TestGetAlbumByID(t *testing.T) {
+	router := gin.Default()
+	router.GET("/albums", controllers.GetAlbums)
+	router.GET("/albums/:id", controllers.GetAlbumByID)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/albums", nil)
+	router.ServeHTTP(w, req)
+	var albums []map[string]any
+	err := json.Unmarshal(w.Body.Bytes(), &albums)
+	assert.Nil(t, err)
+	id := albums[0]["_id"].(string)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/albums/"+id, nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	var album map[string]any
+	err = json.Unmarshal(w.Body.Bytes(), &album)
+	assert.Nil(t, err)
+	expectedResponse := `{"_id": "` + id + `", "title": "Um álbum qualquer", "artist": "Fulano de Tal", "price": 2.99}`
+	assert.JSONEq(t, expectedResponse, string(w.Body.String()))
+}
+
+func TestUpdateAlbum(t *testing.T) {
+	router := gin.Default()
+	router.GET("/albums", controllers.GetAlbums)
+	router.GET("/albums/:id", controllers.GetAlbumByID)
+	router.PUT("/albums/:id", controllers.UpdateAlbum)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/albums", nil)
+	router.ServeHTTP(w, req)
+	var albums []map[string]any
+	err := json.Unmarshal(w.Body.Bytes(), &albums)
+	assert.Nil(t, err)
+	id := albums[0]["_id"].(string)
+
+	updatedAlbum := map[string]any{"title": "Um álbum atualizado", "artist": "Ciclano de Tal", "price": 3.99}
+	jsonValue, _ := json.Marshal(updatedAlbum)
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("PUT", "/albums/"+id, bytes.NewBuffer(jsonValue))
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 204, w.Code)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/albums/"+id, nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 200, w.Code)
+	var album map[string]any
+	err = json.Unmarshal(w.Body.Bytes(), &album)
+	assert.Nil(t, err)
+	expectedResponse := `{"_id": "` + id + `", "title": "Um álbum atualizado", "artist": "Ciclano de Tal", "price": 3.99}`
+	assert.JSONEq(t, expectedResponse, string(w.Body.String()))
+}
+
+func TestDeleteAlbum(t *testing.T) {
+	router := gin.Default()
+	router.GET("/albums", controllers.GetAlbums)
+	router.GET("/albums/:id", controllers.GetAlbumByID)
+	router.DELETE("/albums/:id", controllers.DeleteAlbum)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/albums", nil)
+	router.ServeHTTP(w, req)
+	var albums []map[string]any
+	err := json.Unmarshal(w.Body.Bytes(), &albums)
+	assert.Nil(t, err)
+	id := albums[0]["_id"].(string)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("DELETE", "/albums/"+id, nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 204, w.Code)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/albums/"+id, nil)
+	router.ServeHTTP(w, req)
+	assert.Equal(t, 404, w.Code)
+	var response map[string]any
+	err = json.Unmarshal(w.Body.Bytes(), &response)
+	assert.Nil(t, err)
+	assert.Equal(t, "album not found", response["error"])
 }
