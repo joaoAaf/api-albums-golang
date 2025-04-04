@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: albums-db-deploy
+  namespace: infnet-devops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: albums-db
+  template:
+    metadata:
+      name: albums-db-pod
+      labels:
+        app: albums-db
+    spec:
+      containers:
+        - name: albums-db
+          image: mongo:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
