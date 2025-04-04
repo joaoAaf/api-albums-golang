@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: Iniciando Testes
         run: |
+          timedatectl set-timezone ${{ vars.TZ }}
           echo "Iniciando testes em $(date)"
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +39,7 @@ jobs:
     steps:
       - name: Iniciando Build
         run: |
+          timedatectl set-timezone ${{ vars.TZ }}
           echo "Iniciando build em $(date)"
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +51,7 @@ jobs:
       - name: Configurando Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Construção da Imagem Docker
+        id: build_push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -59,3 +62,7 @@ jobs:
           platforms: linux/amd64
           cache-from: type=registry,ref=${{ vars.DOCKERHUB_TAG }}:latest
           cache-to: type=inline
+      - name: Finalizando Build
+        run: |
+          echo "Image digest: ${{ steps.build_push.outputs.digest }}"
+          echo "Build finalizado em $(date)"
