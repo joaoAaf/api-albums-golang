@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: albums-api-deploy
-  namespace: infnet-devops
+  namespace: albums-app
 spec:
   replicas: 4
   selector:
@@ -22,4 +22,4 @@ spec:
             - containerPort: 8080
           env:
             - name: MONGO_CONNECTION
-              value: mongodb://albums-db-svc.infnet-devops.svc.cluster.local:27017
+              value: mongodb://albums-db-svc.albums-app.svc.cluster.local:27017

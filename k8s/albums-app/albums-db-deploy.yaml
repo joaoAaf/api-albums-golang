@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: albums-db-deploy
-  namespace: infnet-devops
+  namespace: albums-app
 spec:
   replicas: 1
   selector:
