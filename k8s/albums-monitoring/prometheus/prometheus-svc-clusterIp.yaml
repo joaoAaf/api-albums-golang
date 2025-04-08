@@ -1,14 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: prometheus-svc-nodeport
+  name: prometheus-svc-clusterip
   namespace: albums-monitoring
 spec:
   selector:
     app: prometheus
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 9090
     targetPort: 9090
-    nodePort: 31002
     protocol: TCP
