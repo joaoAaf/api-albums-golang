@@ -11,4 +11,3 @@ spec:
   storageClassName: standard
   hostPath:
     path: /mnt/prometheus-pv
-  
