@@ -9,8 +9,7 @@ jobs:
     steps:
       - name: Iniciando Testes
         run: |
-          timedatectl set-timezone ${{ vars.TZ }}
-          echo "Iniciando testes em $(date)"
+          echo "Iniciando testes em $(TZ=${{ vars.TZ }} date)"
       - name: Checkout
         uses: actions/checkout@v4
       - name: Configurando Ambiente Golang
@@ -29,18 +28,17 @@ jobs:
       - name: Falha nos Testes
         if: failure()
         run: |
-          echo "Testes falharam em $(date)"
+          echo "Testes falharam em $(TZ=${{ vars.TZ }} date)"
       - name: Finalizando Testes
         run: |
-          echo "Testes finalizados em $(date)"
+          echo "Testes finalizados em $(TZ=${{ vars.TZ }} date)"
   build:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Iniciando Build
         run: |
-          timedatectl set-timezone ${{ vars.TZ }}
-          echo "Iniciando build em $(date)"
+          echo "Iniciando testes em $(TZ=${{ vars.TZ }} date)"
       - name: Checkout
         uses: actions/checkout@v4
       - name: Login Docker Hub
@@ -62,7 +60,11 @@ jobs:
           platforms: linux/amd64
           cache-from: type=registry,ref=${{ vars.DOCKERHUB_TAG }}:latest
           cache-to: type=inline
+      - name: Falha no Build
+        if: failure()
+        run: |
+          echo "Build falhou em $(TZ=${{ vars.TZ }} date)"   
       - name: Finalizando Build
         run: |
           echo "Image digest: ${{ steps.build_push.outputs.digest }}"
-          echo "Build finalizado em $(date)"
+          echo "Build finalizado em $(TZ=${{ vars.TZ }} date)"
