@@ -751,7 +751,7 @@
         {
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "albums_http_requests_total",
+          "expr": "sum(albums_http_requests_total)",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "__auto",
@@ -779,5 +779,5 @@
   "timezone": "browser",
   "title": "albums_http_requests",
   "uid": "deheqrf4posn4e",
-  "version": 17
+  "version": 1
 }
