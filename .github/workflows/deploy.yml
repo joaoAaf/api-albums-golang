@@ -1,0 +1,43 @@
+name: Deploy
+on:
+  pull_request:
+    branches:
+      - deploy
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps: 
+      - name: Iniciando Deploy K8S
+        run: |
+          echo "Iniciando deploy em $(TZ=${{ vars.TZ }} date)"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurações Iniciais do Cluster
+        run: |
+          kubectl apply -f ./k8s/init/ -R
+      - name: PVC para o Banco de Dados
+        run: |
+          kubectl apply -f ./k8s/albums-app/pvc/ -R
+      - name: Subindo a Aplicação e o Banco de Dados
+        run: |
+          kubectl apply -f ./k8s/albums-app/deploy_svc/ -R
+      - name: PVC e ConfigMap para a Stack de Monitoramento
+        run: |
+          ./k8s/albums-monitoring/pvc_configmap/grafana-dashboards.sh ./monitoring/grafana/provisioning/dashboards
+          kubectl apply -f ./k8s/albums-monitoring/pvc_configmap/ -R
+      - name: Subindo a Stack de Monitoramento
+        run: |
+          kubectl apply -f ./k8s/albums-monitoring/deploy_svc/ -R
+      - name: Atualizando API
+        run: |
+          kubectl rollout restart -f ./k8s/albums-app/deploy_svc/albums-api/albums-api-deploy.yaml
+      - name: Status de Atualização da API
+        run: |
+          kubectl rollout status -f ./k8s/albums-app/deploy_svc/albums-api/albums-api-deploy.yaml
+      - name: Falha no Deploy
+        if: failure()
+        run: |
+          echo "Deploy falhou em $(TZ=${{ vars.TZ }} date)"
+      - name: Finalizando Deploy K8S
+        run: |
+          echo "Finalizando deploy em $(TZ=${{ vars.TZ }} date)"
