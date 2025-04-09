@@ -1,6 +1,6 @@
 name: Deploy
 on:
-  pull_request:
+  push:
     branches:
       - deploy
 jobs:
@@ -23,6 +23,7 @@ jobs:
           kubectl apply -f ./k8s/albums-app/deploy_svc/ -R
       - name: PVC e ConfigMap para a Stack de Monitoramento
         run: |
+          chmod +x ./k8s/albums-monitoring/pvc_configmap/grafana-dashboards.sh
           ./k8s/albums-monitoring/pvc_configmap/grafana-dashboards.sh ./monitoring/grafana/provisioning/dashboards
           kubectl apply -f ./k8s/albums-monitoring/pvc_configmap/ -R
       - name: Subindo a Stack de Monitoramento
