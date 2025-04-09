@@ -23,3 +23,19 @@ spec:
           env:
             - name: MONGO_CONNECTION
               value: mongodb://albums-db-svc.albums-app.svc.cluster.local:27017
+          readinessProbe:
+            initialDelaySeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+            periodSeconds: 3
+            httpGet:
+              port: 8080
+              path: /
+          livenessProbe:
+            initialDelaySeconds: 20
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            httpGet:
+              port: 8080
+              path: /
